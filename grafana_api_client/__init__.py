@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 import requests
 
 __all__ = map(str, ["GrafanaException", "GrafanaServerError", "GrafanaClientError",
- "GrafanaBadInputError", "GrafanaUnauthorizedError", "GrafanaPreconditionFailedError",
- "GrafanaClient"])
+                    "GrafanaBadInputError", "GrafanaUnauthorizedError", "GrafanaPreconditionFailedError",
+                    "GrafanaClient"])
+
 
 class GrafanaException(Exception):
     pass
@@ -41,7 +42,8 @@ class GrafanaUnauthorizedError(GrafanaClientError):
 class GrafanaPreconditionFailedError(GrafanaClientError):
     """
     `412 - Precondition failed`
-    `The 412 status code is used when a newer dashboard already exists (newer, its version is greater than the version that was sent). The same status code is also used if another dashboard exists with the same title.`
+    `The 412 status code is used when a newer dashboard already exists (newer, its version is greater than the version
+    that was sent). The same status code is also used if another dashboard exists with the same title.`
     """
     pass
 
@@ -56,7 +58,7 @@ class DeferredClientRequest(object):
         return self
 
     def __getitem__(self, path_section):
-        self.path_sections.append(unicode(path_section))
+        self.path_sections.append(path_section)
         return self
 
     def make_request(self, method, payload):
@@ -136,7 +138,7 @@ class GrafanaClient(object):
         self.session.headers = {
             "Accept": "application/json; charset=UTF-8"
         }
-        if isinstance(authenticate_with, basestring):
+        if self._string_test(authenticate_with):
             self.session.auth = TokenAuth(authenticate_with)
         else:
             self.session.auth = requests.auth.HTTPBasicAuth(*authenticate_with)
@@ -182,3 +184,10 @@ class GrafanaClient(object):
 
     def __repr__(self):
         return "<GrafanaApiClient at '{0}'>".format(self.construct_api_url(""))
+
+    @staticmethod
+    def _string_test(s):
+        try:
+            return isinstance(s, basestring)
+        except NameError:
+            return isinstance(s, str)
